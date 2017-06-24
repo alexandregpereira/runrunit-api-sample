@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#fbfeff</color>
+    <color name="colorPrimaryDark">#e7eff6</color>
+    <color name="colorAccent">#eb3e35</color>
+    <color name="windowBackground">#e7eff6</color>
+    <color name="textColor">#000000</color>
+    <color name="textLightColor">#FFFFFF</color>
+    <color name="secondaryTextColor">#99000000</color>
+    <color name="cardColor">#FFFFFF</color>
+    <color name="fieldColor">#55000000</color>
+
+    <color name="buttonColor">#eb3e35</color>
+    <color name="buttonColor_on">#9b130c</color>
+</resources>
