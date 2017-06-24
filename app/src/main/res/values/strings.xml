@@ -3,4 +3,6 @@
     <string name="title_activity_main">Runrun.it</string>
 
     <string name="delivery">Entregar</string>
+    <string name="try_again">Tentar Novamente</string>
+    <string name="empty_message">Não foi possível carregar as tarefas, verifique a sua conexão</string>
 </resources>

@@ -8,6 +8,8 @@ import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
+import android.view.View
 import com.bano.runrunit.R
 import com.bano.runrunit.adapter.TaskAdapter
 import com.bano.runrunit.databinding.ActivityMainBinding
@@ -23,10 +25,39 @@ class MainActivity : AppCompatActivity(), LifecycleRegistryOwner {
         binding.toolbar.setTitle(R.string.app_name)
 
         binding.contentMain.recyclerTask.layoutManager = LinearLayoutManager(this)
+        val adapter = TaskAdapter(this@MainActivity, ArrayList<Task>(), null)
+        binding.contentMain.recyclerTask.adapter = adapter
         val model = ViewModelProviders.of(this).get(TaskViewModel::class.java)
-        model.getTasks().observe(this, Observer<List<Task>> {
-            it?.let { binding.contentMain.recyclerTask.adapter = TaskAdapter(this@MainActivity, it, null) }
+
+        val taskObservable = model.getTasks()
+        taskObservable.observe(this, Observer<List<Task>> {
+            it?.let {
+                Log.d("Recebido MainActivity", it.toString())
+                adapter.items = it
+            }
         })
+
+        model.errorObservable.observe(this, Observer<Unit> {
+            Log.e("Recebido MainActivity", "Erro")
+            val taskList: List<Task>? = taskObservable.value
+            if(taskList == null || taskList.isEmpty()) showEmptyMessage(true, binding)
+        })
+
+        binding.contentMain.btnTryAgain.setOnClickListener {
+            showEmptyMessage(false, binding)
+            model.getTasks()
+        }
+    }
+
+    private fun showEmptyMessage(show: Boolean, binding: ActivityMainBinding){
+        if(show){
+            binding.contentMain.txtEmpty.visibility = View.VISIBLE
+            binding.contentMain.btnTryAgain.visibility = View.VISIBLE
+        }
+        else{
+            binding.contentMain.txtEmpty.visibility = View.GONE
+            binding.contentMain.btnTryAgain.visibility = View.GONE
+        }
     }
 
     override fun getLifecycle(): LifecycleRegistry {

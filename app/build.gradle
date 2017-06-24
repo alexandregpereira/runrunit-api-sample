@@ -41,3 +41,7 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
 
 }
+
+kapt {
+    generateStubs = true
+}
