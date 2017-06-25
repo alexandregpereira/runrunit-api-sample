@@ -36,7 +36,7 @@ class TaskViewModel: ViewModel() {
     }
 
     private fun listTask(): LiveData<List<Task>>{
-        taskListObservable.value = realm.where(Task::class.java).findAll()
+        taskListObservable.value = realm.where(Task::class.java).findAll().sort("queuePosition")
 
         listTaskFomApi()
 
@@ -61,5 +61,53 @@ class TaskViewModel: ViewModel() {
     private fun insertOrUpdate(tasks : ArrayList<Task>?){
         if(tasks == null) return
         realm.executeTransactionAsync { it.insertOrUpdate(tasks) }
+    }
+
+    private fun insertOrUpdate(task: Task){
+        realm.executeTransactionAsync { it.insertOrUpdate(task) }
+    }
+
+    private fun delete(task: Task){
+        realm.executeTransactionAsync { it.where(Task::class.java).equalTo("id", task.id).findAll().deleteAllFromRealm() }
+    }
+
+    val taskCallback = object : Callback<Task> {
+        override fun onFailure(call: Call<Task>?, t: Throwable?) {
+            Log.e("Erro retrofit", t?.message)
+            errorObservable.value = Unit
+        }
+
+        override fun onResponse(call: Call<Task>, response: Response<Task>) {
+            Log.d("Recebido Retrofit", response.body().toString())
+            listTaskFomApi()
+        }
+    }
+
+    fun play(task: Task) {
+        if(task.workingOn) return
+        task.workingOn = true
+        insertOrUpdate(task)
+        taskApi.play(task.id).enqueue(taskCallback)
+    }
+
+    fun pause(task: Task) {
+        if(!task.workingOn) return
+        task.workingOn = false
+        insertOrUpdate(task)
+        taskApi.pause(task.id).enqueue(taskCallback)
+    }
+
+    fun close(task: Task) {
+        delete(task)
+        taskApi.close(task.id).enqueue(object : Callback<Task> {
+            override fun onFailure(call: Call<Task>?, t: Throwable?) {
+                Log.e("Erro retrofit", t?.message)
+                errorObservable.value = Unit
+            }
+
+            override fun onResponse(call: Call<Task>, response: Response<Task>) {
+                Log.d("Recebido Retrofit", response.body().toString())
+            }
+        })
     }
 }

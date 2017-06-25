@@ -19,15 +19,33 @@ import com.bano.runrunit.viewmodel.TaskViewModel
 class MainActivity : AppCompatActivity(), LifecycleRegistryOwner {
     private val lifecycleRegistry = LifecycleRegistry(this)
 
+    interface TaskListener{
+        fun onPlay(task: Task)
+        fun onPause(task: Task)
+        fun onClose(task: Task)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
         binding.toolbar.setTitle(R.string.app_name)
+        val model = ViewModelProviders.of(this).get(TaskViewModel::class.java)
 
         binding.contentMain.recyclerTask.layoutManager = LinearLayoutManager(this)
-        val adapter = TaskAdapter(this@MainActivity, ArrayList<Task>(), null)
+        val adapter = TaskAdapter(this@MainActivity, ArrayList<Task>(), object: TaskListener{
+            override fun onPlay(task: Task) {
+                model.play(task)
+            }
+
+            override fun onPause(task: Task) {
+                model.pause(task)
+            }
+
+            override fun onClose(task: Task) {
+                model.close(task)
+            }
+        })
         binding.contentMain.recyclerTask.adapter = adapter
-        val model = ViewModelProviders.of(this).get(TaskViewModel::class.java)
 
         val taskObservable = model.getTasks()
         taskObservable.observe(this, Observer<List<Task>> {

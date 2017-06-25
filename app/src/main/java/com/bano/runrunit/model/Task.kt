@@ -15,4 +15,6 @@ open class Task : RealmObject(){
     var workingOn: Boolean = false
     @SerializedName("time_progress")
     var timeProgress: Double = 0.0
+    @SerializedName("queue_position")
+    var queuePosition: Int = 0
 }
